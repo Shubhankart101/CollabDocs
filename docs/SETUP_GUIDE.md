@@ -5,6 +5,7 @@ This guide details how to set up, run, and test CollabDocs locally.
 ---
 
 ## 📋 Prerequisites
+
 - **Python**: Version 3.11 or higher
 - **Pip**: Latest version
 - **Git**: For version control
@@ -16,6 +17,7 @@ This guide details how to set up, run, and test CollabDocs locally.
 ## ⚙ Step-by-Step Setup
 
 ### 1. Clone Repository & Setup Environment
+
 ```bash
 git clone https://github.com/Shubhankart101/CollabDocs.git
 cd CollabDocs
@@ -23,6 +25,7 @@ cp .env.example .env
 ```
 
 ### 2. Virtual Environment & Dependencies
+
 ```bash
 python -m venv venv
 # On Windows:
@@ -34,15 +37,18 @@ pip install -r requirements.txt
 ```
 
 ### 3. Run Database Migrations
+
 ```bash
 python manage.py makemigrations api
 python manage.py migrate
 ```
 
 ### 4. Run Development Server
+
 ```bash
 python manage.py runserver
 ```
+
 The server will start at `http://127.0.0.1:8000/`.
 
 ---
@@ -54,6 +60,7 @@ To run the application with PostgreSQL via Docker Compose:
 ```bash
 docker-compose up --build -d
 ```
+
 - API Endpoint: `http://localhost:8000/api/`
 - Swagger UI: `http://localhost:8000/api/schema/swagger-ui/`
 
@@ -68,6 +75,7 @@ python manage.py test api
 ```
 
 To run with code coverage:
+
 ```bash
 coverage run manage.py test api
 coverage report -m

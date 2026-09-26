@@ -23,7 +23,7 @@ Comprehensive documentation files are organized in the `docs/` folder:
 - **Automated Audit Logging**: Django `post_save` signal automatically tracks create and update actions on `Document` instances into `AuditLog`.
 - **Custom Request Logging Middleware**: Middleware in [collabdocs/middleware.py](collabdocs/middleware.py) calculates and logs request duration in milliseconds along with HTTP method, endpoint path, and response status code.
 - **Interactive Swagger & OpenAPI Documentation**: Powered by `drf-spectacular` with live interactive UI at `/api/schema/swagger-ui/` and Redoc at `/api/schema/redoc/`.
-- **Templatized CI/CD Pipelines**: Modular GitHub Actions workflows in [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) using reusable templates in [.github/workflows/templates/](.github/workflows/templates/).
+- **Templatized CI/CD Pipelines**: Modular GitHub Actions workflows in [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) using reusable workflow templates directly under [.github/workflows/](.github/workflows/).
 - **Modular Terraform Infrastructure**: Enterprise Infrastructure-as-Code (IaC) setup with reusable modules for `VPC`, `RDS (PostgreSQL)`, and `ECS/APP` in [terraform/modules/](terraform/modules/) separated into `dev` and `prod` environments in [terraform/environments/](terraform/environments/).
 - **Complete Postman Collection**: [CollabDocs.postman_collection.json](CollabDocs.postman_collection.json) containing ready-to-run requests for all 17 required API endpoints.
 
@@ -139,7 +139,7 @@ erDiagram
 | **Comments** | `POST` | `/api/comments/` | Add top-level comment or threaded reply (`parent` self-referential FK). |
 | | `GET` | `/api/comments/?document={id}` | List comments for a document (`select_related`, query params). |
 | **Tags** | `POST` | `/api/tags/` | Create a unique tag (`TagSerializer` custom validation). |
-| **Audit Logs**| `GET` | `/api/audit-logs/` | Query audit log entries filtered by `actor` ID and date range (`date_from`, `date_to`). |
+| **Audit Logs** | `GET` | `/api/audit-logs/` | Query audit log entries filtered by `actor` ID and date range (`date_from`, `date_to`). |
 
 Full API specifications are available in [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md).
 
@@ -150,11 +150,13 @@ Full API specifications are available in [docs/API_DOCUMENTATION.md](docs/API_DO
 For full setup steps, environment configuration, and Postman testing, refer to [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md).
 
 ### Run Test Suite
+
 ```bash
 python manage.py test api
 ```
 
 ### Run Server
+
 ```bash
 python manage.py runserver
 ```
@@ -162,4 +164,5 @@ python manage.py runserver
 ---
 
 ## 📄 License
+
 Distributed under the MIT License. See `LICENSE` for details.

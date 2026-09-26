@@ -9,21 +9,21 @@ on:
 jobs:
   code-quality:
     name: Code Quality & Linting
-    uses: ./.github/workflows/templates/reusable-lint.yml
+    uses: ./.github/workflows/reusable-lint.yml
     with:
       python-version: '3.11'
 
   unit-integration-tests:
     name: Automated Testing Suite
     needs: code-quality
-    uses: ./.github/workflows/templates/reusable-test.yml
+    uses: ./.github/workflows/reusable-test.yml
     with:
       python-version: '3.11'
 
   container-build:
     name: Container Build Pipeline
     needs: unit-integration-tests
-    uses: ./.github/workflows/templates/reusable-build.yml
+    uses: ./.github/workflows/reusable-build.yml
     with:
       image-name: 'collabdocs-api'
       image-tag: ${{ github.sha }}
@@ -32,6 +32,6 @@ jobs:
     name: Application Release Pipeline
     needs: container-build
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/templates/reusable-release.yml
+    uses: ./.github/workflows/reusable-release.yml
     with:
       version: '1.0.0'
