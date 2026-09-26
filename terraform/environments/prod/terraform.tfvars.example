@@ -1,0 +1,4 @@
+aws_region  = "us-east-1"
+environment = "prod"
+db_password = "super-secret-prod-password-789!"
+secret_key  = "production-django-secret-key-change-me"

@@ -1,0 +1,4 @@
+aws_region  = "us-east-1"
+environment = "dev"
+db_password = "super-secret-dev-password-123"
+secret_key  = "django-insecure-dev-secret-key"

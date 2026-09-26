@@ -1,0 +1,37 @@
+name: CollabDocs CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  code-quality:
+    name: Code Quality & Linting
+    uses: ./.github/workflows/templates/reusable-lint.yml
+    with:
+      python-version: '3.11'
+
+  unit-integration-tests:
+    name: Automated Testing Suite
+    needs: code-quality
+    uses: ./.github/workflows/templates/reusable-test.yml
+    with:
+      python-version: '3.11'
+
+  container-build:
+    name: Container Build Pipeline
+    needs: unit-integration-tests
+    uses: ./.github/workflows/templates/reusable-build.yml
+    with:
+      image-name: 'collabdocs-api'
+      image-tag: ${{ github.sha }}
+
+  release-package:
+    name: Application Release Pipeline
+    needs: container-build
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/templates/reusable-release.yml
+    with:
+      version: '1.0.0'

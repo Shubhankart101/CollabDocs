@@ -1,0 +1,364 @@
+{
+	"info": {
+		"_postman_id": "c1f3b890-5a3d-4e9e-87a2-collabdocs-17",
+		"name": "CollabDocs API",
+		"description": "Postman Collection for CollabDocs RESTful API covering all 17 endpoints across Users, Workspaces, Documents, Comments, Tags, and Audit Logs.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://127.0.0.1:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "workspaceId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "documentId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Alice\",\n  \"last_name\": \"Smith\",\n  \"email\": \"alice.smith@collabdocs.io\",\n  \"phone\": \"+15551234567\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", ""]
+						}
+					}
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "{{userId}}", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Workspaces",
+			"item": [
+				{
+					"name": "Create Workspace (Auto-adds Owner as Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Engineering Workspace\",\n  \"owner\": \"{{userId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/workspaces/",
+							"host": ["{{baseUrl}}"],
+							"path": ["workspaces", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Workspace with Member Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/workspaces/{{workspaceId}}/",
+							"host": ["{{baseUrl}}"],
+							"path": ["workspaces", "{{workspaceId}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Add Member to Workspace",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": \"{{userId}}\",\n  \"role\": \"editor\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/workspaces/{{workspaceId}}/members/",
+							"host": ["{{baseUrl}}"],
+							"path": ["workspaces", "{{workspaceId}}", "members", ""]
+						}
+					}
+				},
+				{
+					"name": "List Workspace Members",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/workspaces/{{workspaceId}}/members/",
+							"host": ["{{baseUrl}}"],
+							"path": ["workspaces", "{{workspaceId}}", "members", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Workspace Summary Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/workspaces/{{workspaceId}}/summary/",
+							"host": ["{{baseUrl}}"],
+							"path": ["workspaces", "{{workspaceId}}", "summary", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Documents",
+			"item": [
+				{
+					"name": "Create Document + Version 1 (Atomic)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"System Architecture RFC\",\n  \"content\": \"# System Architecture\\n\\nThis document outlines our microservice setup.\",\n  \"workspace\": \"{{workspaceId}}\",\n  \"created_by\": \"{{userId}}\",\n  \"status\": \"draft\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents/",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Document Content -> Saves New Version (Atomic)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"System Architecture RFC (v2)\",\n  \"content\": \"# System Architecture v2\\n\\nAdded PostgreSQL and Redis caching details.\",\n  \"workspace\": \"{{workspaceId}}\",\n  \"created_by\": \"{{userId}}\",\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents/{{documentId}}/",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents", "{{documentId}}", ""]
+						}
+					}
+				},
+				{
+					"name": "List Documents (With Filtering & Search)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/documents/?workspace={{workspaceId}}&status=draft&search=Architecture",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents", ""],
+							"query": [
+								{
+									"key": "workspace",
+									"value": "{{workspaceId}}"
+								},
+								{
+									"key": "status",
+									"value": "draft"
+								},
+								{
+									"key": "search",
+									"value": "Architecture"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Document Versions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/documents/{{documentId}}/versions/",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents", "{{documentId}}", "versions", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Document Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/documents/{{documentId}}/stats/",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents", "{{documentId}}", "stats", ""]
+						}
+					}
+				},
+				{
+					"name": "Add Tags to Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tag_names\": [\"backend\", \"architecture\", \"django\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents/{{documentId}}/tags/",
+							"host": ["{{baseUrl}}"],
+							"path": ["documents", "{{documentId}}", "tags", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Add Comment / Reply",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"document\": \"{{documentId}}\",\n  \"author\": \"{{userId}}\",\n  \"content\": \"Great writeup! Could you expand on the database indexing strategy?\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/comments/",
+							"host": ["{{baseUrl}}"],
+							"path": ["comments", ""]
+						}
+					}
+				},
+				{
+					"name": "List Document Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/comments/?document={{documentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["comments", ""],
+							"query": [
+								{
+									"key": "document",
+									"value": "{{documentId}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "Create Tag",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"infrastructure\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tags/",
+							"host": ["{{baseUrl}}"],
+							"path": ["tags", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Audit Logs",
+			"item": [
+				{
+					"name": "List Audit Logs (Filtered)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/audit-logs/?actor={{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["audit-logs", ""],
+							"query": [
+								{
+									"key": "actor",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

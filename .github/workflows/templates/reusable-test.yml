@@ -1,0 +1,56 @@
+name: Reusable Test & Coverage Workflow
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: false
+        type: string
+        default: '3.11'
+
+jobs:
+  test:
+    name: Run Unit & Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: collabdocs_test
+          POSTGRES_USER: collabuser
+          POSTGRES_PASSWORD: collabpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install coverage -r requirements.txt
+
+      - name: Run Django Migrations & Tests with Coverage
+        env:
+          SECRET_KEY: test-secret-key-ci
+          DEBUG: 'True'
+          DB_ENGINE: django.db.backends.postgresql
+          DB_NAME: collabdocs_test
+          DB_USER: collabuser
+          DB_PASSWORD: collabpass
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+        run: |
+          python manage.py migrate
+          coverage run manage.py test api
+          coverage report -m

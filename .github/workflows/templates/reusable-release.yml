@@ -1,0 +1,31 @@
+name: Reusable Release Workflow
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+jobs:
+  release:
+    name: Create GitHub Release Artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bundle Release Code
+        run: |
+          mkdir -p release-dist
+          tar -czvf release-dist/collabdocs-${{ inputs.version }}.tar.gz \
+            --exclude='.git' \
+            --exclude='.venv' \
+            --exclude='__pycache__' \
+            .
+
+      - name: Upload Release Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: collabdocs-release-${{ inputs.version }}
+          path: release-dist/collabdocs-${{ inputs.version }}.tar.gz
