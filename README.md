@@ -9,6 +9,7 @@ CollabDocs is a production-ready, highly robust backend RESTful API built with *
 Comprehensive documentation files are organized in the `docs/` folder:
 
 - **Setup & Local Execution**: See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for local installation, Docker Compose setup, test runner commands, and Postman import instructions.
+- **Testing Documentation**: See [docs/TESTING.md](docs/TESTING.md) for the full automated test suite breakdown, a complete per-test verbose success log, a worked failing-test example, and live Swagger UI verification screenshots (atomic rollback, middleware logging, aggregation endpoints, audit log signal).
 - **API Endpoint Reference**: See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for detailed request/response payloads, query parameters, and status codes across all 17 RESTful endpoints.
 - **System Architecture & ERD**: See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for database model definitions, ERD diagrams, atomic transaction flow, custom request logging middleware, and audit log signals.
 - **CI/CD Pipeline Architecture**: See [docs/CICD_PIPELINES.md](docs/CICD_PIPELINES.md) for details on GitHub Actions reusable workflow templates (`lint`, `test`, `build`, `release`).
@@ -155,21 +156,11 @@ For full setup steps, environment configuration, and Postman testing, refer to [
 python manage.py test api
 ```
 
-The suite now contains **49 automated tests** (up from the original 26) spanning models, serializers, signals, middleware, and views — including negative/edge-case scenarios such as 404s on missing resources, duplicate email/phone rejection, cross-document comment-reply validation, tag-by-id attachment, audit log date-range filtering, and pagination structure checks. See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md#-testing--code-coverage) for the full breakdown.
+The suite now contains **49 automated tests** (up from the original 26) spanning models, serializers, signals, middleware, and views — including negative/edge-case scenarios such as 404s on missing resources, duplicate email/phone rejection, cross-document comment-reply validation, tag-by-id attachment, audit log date-range filtering, and pagination structure checks. For the complete per-test verbose log (every test name individually, with its `ok`/`FAIL` status) and a worked example of what a failing test looks like, see **[docs/TESTING.md](docs/TESTING.md)**.
 
 #### Example Local Test Output
 
-```text
-Found 49 test(s).
-Creating test database for alias 'default'...
-System check identified no issues (0 silenced).
-.................................................
-----------------------------------------------------------------------
-Ran 49 tests in 0.251s
-
-OK
-Destroying test database for alias 'default'...
-```
+![Full verbose test run showing all 49 tests individually passing](docs/screenshots/test-run-49-passed.png)
 
 ### Run Server
 
@@ -183,24 +174,45 @@ python manage.py runserver
 
 The interactive OpenAPI documentation was verified end-to-end against the running dev server, including executing a live `POST /api/users/` request directly from Swagger UI's **Try it out** panel and confirming a real `201 Created` response from the server.
 
-| Screenshot | Description |
-| :--- | :--- |
-| ![Swagger UI Overview](docs/screenshots/swagger-ui-overview.png) | Swagger UI landing page at `/api/schema/swagger-ui/` listing all grouped endpoints (`audit-logs`, `comments`, `documents`, `tags`, `users`, `workspaces`). |
-| ![Swagger UI Create Document](docs/screenshots/swagger-ui-create-document.png) | Expanded `POST /api/documents/` operation showing the request schema and example payload. |
-| ![Swagger UI Live Request](docs/screenshots/swagger-ui-live-request-response.png) | Live `Try it out` execution of `POST /api/users/` returning a real `201 Created` response with the generated UUID and timestamp. |
-| ![ReDoc UI Overview](docs/screenshots/redoc-ui-overview.png) | ReDoc documentation view at `/api/schema/redoc/` as an alternative read-only API reference. |
+![Swagger UI Overview](docs/screenshots/swagger-ui-overview.png)
+*Swagger UI landing page at `/api/schema/swagger-ui/` listing all grouped endpoints (`audit-logs`, `comments`, `documents`, `tags`, `users`, `workspaces`).*
+
+![Swagger UI Create Document](docs/screenshots/swagger-ui-create-document.png)
+*Expanded `POST /api/documents/` operation showing the request schema and example payload.*
+
+![Swagger UI Live Request](docs/screenshots/swagger-ui-live-request-response.png)
+*Live `Try it out` execution of `POST /api/users/` returning a real `201 Created` response with the generated UUID and timestamp.*
+
+![ReDoc UI Overview](docs/screenshots/redoc-ui-overview.png)
+*ReDoc documentation view at `/api/schema/redoc/` as an alternative read-only API reference.*
 
 ### Demo-Video Scenarios, Verified Live via Swagger UI
 
-| Scenario | Screenshot(s) |
-| :--- | :--- |
-| Atomic transaction + rollback on failure (duplicate workspace member → `409`, no partial write) | [success-201](docs/screenshots/swagger-add-member-success-201.png), [rollback-409](docs/screenshots/swagger-add-member-rollback-409.png), [list-confirms-rollback](docs/screenshots/swagger-members-list-confirms-rollback.png) |
-| Middleware request logging printed to the console for every request | [middleware-console](docs/screenshots/middleware-request-logging-console.png) |
-| Aggregation endpoints (`document stats`, `workspace summary`) | [document-stats](docs/screenshots/swagger-document-stats-aggregation.png), [workspace-summary](docs/screenshots/swagger-workspace-summary-aggregation.png) |
-| `AuditLog` written by the `post_save` signal after document create + updates | [auditlog-signal](docs/screenshots/swagger-auditlog-signal-created-updated.png) |
-| Project initialization from a fresh clone to a running server | [init-01](docs/screenshots/init-01-clone-install-migrate.png), [init-02](docs/screenshots/init-02-runserver-and-urls.png) |
+**Atomic transaction + rollback on failure** (duplicate workspace member → `409`, no partial write):
 
-Full step-by-step instructions (how to run via terminal, open Swagger/ReDoc, and reproduce each scenario) are in [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md#️-running-the-app-via-terminal-cheat-sheet). Two real bugs (a stale `version_count` after document updates, and undocumented filter query params missing from the Swagger schema) were found and fixed during this verification pass — see [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md#bugs-found-and-fixed-during-this-verification-pass) for details.
+![Add member succeeds 201](docs/screenshots/swagger-add-member-success-201.png)
+![Repeating the request triggers rollback 409](docs/screenshots/swagger-add-member-rollback-409.png)
+![Member list confirms no duplicate was persisted](docs/screenshots/swagger-members-list-confirms-rollback.png)
+
+**Middleware request logging** printed to the console for every request:
+
+![Middleware console log lines for every request](docs/screenshots/middleware-request-logging-console.png)
+
+**Aggregation endpoints** (`document stats`, `workspace summary`):
+
+![Document stats aggregation](docs/screenshots/swagger-document-stats-aggregation.png)
+![Workspace summary aggregation](docs/screenshots/swagger-workspace-summary-aggregation.png)
+
+**`AuditLog` written by the `post_save` signal** after document create + updates:
+
+![AuditLog entries: 1 created + 2 updated](docs/screenshots/swagger-auditlog-signal-created-updated.png)
+
+**Project initialization**, from a fresh clone to a running server:
+
+![Clone, install dependencies, and migrate](docs/screenshots/init-01-clone-install-migrate.png)
+![Runserver startup and URLs to open](docs/screenshots/init-02-runserver-and-urls.png)
+
+Full step-by-step instructions (how to run via terminal, open Swagger/ReDoc, and reproduce each scenario), the complete per-test verbose log of all 49 tests passing, and a demonstration of what a failing test looks like, are all in the dedicated **[docs/TESTING.md](docs/TESTING.md)**. Two real bugs (a stale `version_count` after document updates, and undocumented filter query params missing from the Swagger schema) were found and fixed during this verification pass — see [docs/TESTING.md](docs/TESTING.md#5-bugs-found-and-fixed-during-verification) for details.
 
 ---
 
