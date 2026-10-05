@@ -2,7 +2,7 @@ from django.db import transaction, IntegrityError
 from django.db.models import Count, Q
 from rest_framework import viewsets, status, response
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiTypes
 
 from .models import (
     User, Workspace, WorkspaceMember, Document, DocumentVersion, Comment, Tag, AuditLog
@@ -140,6 +140,17 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="List documents with optional filters",
+        parameters=[
+            OpenApiParameter(name='workspace', type=OpenApiTypes.UUID, description='Filter documents by workspace ID.'),
+            OpenApiParameter(name='status', type=OpenApiTypes.STR, description='Filter by document status: draft, published, archived.'),
+            OpenApiParameter(name='tag_name', type=OpenApiTypes.STR, description='Filter documents that have a tag matching this name (icontains).'),
+            OpenApiParameter(name='search', type=OpenApiTypes.STR, description='Search documents by title (icontains).'),
+        ]
+    )
+)
 class DocumentViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Document endpoints.
@@ -218,6 +229,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 saved_by=saved_by_user
             )
 
+        # Clear the prefetched 'versions' cache so version_count reflects the newly created version
+        if hasattr(document, '_prefetched_objects_cache'):
+            document._prefetched_objects_cache.pop('versions', None)
+
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(summary="Get all versions of a document")
@@ -286,6 +301,14 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="List comments, optionally filtered by document",
+        parameters=[
+            OpenApiParameter(name='document', type=OpenApiTypes.UUID, description='Filter comments belonging to this document ID.'),
+        ]
+    )
+)
 class CommentViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Comment endpoints.
@@ -313,6 +336,16 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="List audit logs filtered by actor and/or date range",
+        parameters=[
+            OpenApiParameter(name='actor', type=OpenApiTypes.UUID, description='Filter audit logs created by this actor/user ID.'),
+            OpenApiParameter(name='date_from', type=OpenApiTypes.DATETIME, description='Only include logs with a timestamp on/after this ISO-8601 datetime.'),
+            OpenApiParameter(name='date_to', type=OpenApiTypes.DATETIME, description='Only include logs with a timestamp on/before this ISO-8601 datetime.'),
+        ]
+    )
+)
 class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for AuditLog endpoints.

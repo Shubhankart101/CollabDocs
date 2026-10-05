@@ -141,6 +141,9 @@ class ViewsTestCase(APITestCase):
         self.assertEqual(versions_after[1].version_number, 2)
         self.assertEqual(versions_after[1].content, "Version 2 Content")
 
+        # Regression: response's version_count must reflect the newly created version (not a stale prefetch cache)
+        self.assertEqual(res_put.data['version_count'], 2)
+
     def test_document_list_filtering(self):
         ws = Workspace.objects.create(name="Filter WS", owner=self.user1)
         doc1 = Document.objects.create(title="Python Best Practices", content="Content", workspace=ws, created_by=self.user1, status="published")

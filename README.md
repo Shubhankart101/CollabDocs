@@ -190,6 +190,18 @@ The interactive OpenAPI documentation was verified end-to-end against the runnin
 | ![Swagger UI Live Request](docs/screenshots/swagger-ui-live-request-response.png) | Live `Try it out` execution of `POST /api/users/` returning a real `201 Created` response with the generated UUID and timestamp. |
 | ![ReDoc UI Overview](docs/screenshots/redoc-ui-overview.png) | ReDoc documentation view at `/api/schema/redoc/` as an alternative read-only API reference. |
 
+### Demo-Video Scenarios, Verified Live via Swagger UI
+
+| Scenario | Screenshot(s) |
+| :--- | :--- |
+| Atomic transaction + rollback on failure (duplicate workspace member → `409`, no partial write) | [success-201](docs/screenshots/swagger-add-member-success-201.png), [rollback-409](docs/screenshots/swagger-add-member-rollback-409.png), [list-confirms-rollback](docs/screenshots/swagger-members-list-confirms-rollback.png) |
+| Middleware request logging printed to the console for every request | [middleware-console](docs/screenshots/middleware-request-logging-console.png) |
+| Aggregation endpoints (`document stats`, `workspace summary`) | [document-stats](docs/screenshots/swagger-document-stats-aggregation.png), [workspace-summary](docs/screenshots/swagger-workspace-summary-aggregation.png) |
+| `AuditLog` written by the `post_save` signal after document create + updates | [auditlog-signal](docs/screenshots/swagger-auditlog-signal-created-updated.png) |
+| Project initialization from a fresh clone to a running server | [init-01](docs/screenshots/init-01-clone-install-migrate.png), [init-02](docs/screenshots/init-02-runserver-and-urls.png) |
+
+Full step-by-step instructions (how to run via terminal, open Swagger/ReDoc, and reproduce each scenario) are in [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md#️-running-the-app-via-terminal-cheat-sheet). Two real bugs (a stale `version_count` after document updates, and undocumented filter query params missing from the Swagger schema) were found and fixed during this verification pass — see [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md#bugs-found-and-fixed-during-this-verification-pass) for details.
+
 ---
 
 ## 📄 License
