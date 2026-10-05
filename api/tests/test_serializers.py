@@ -97,3 +97,32 @@ class SerializerTests(TestCase):
         })
         self.assertFalse(serializer.is_valid())
         self.assertIn("parent", serializer.errors)
+
+    def test_comment_serializer_valid_same_document_parent(self):
+        parent_comment = Comment.objects.create(
+            document=self.doc1,
+            author=self.user,
+            content="Doc 1 parent comment"
+        )
+        serializer = CommentSerializer(data={
+            "document": str(self.doc1.id),
+            "author": str(self.user.id),
+            "content": "Valid reply on same document",
+            "parent": str(parent_comment.id)
+        })
+        self.assertTrue(serializer.is_valid())
+
+    def test_workspace_member_valid_role(self):
+        serializer = WorkspaceMemberSerializer(data={
+            "workspace": str(self.workspace.id),
+            "user": str(self.user.id),
+            "role": "editor"
+        })
+        self.assertTrue(serializer.is_valid())
+
+    def test_user_serializer_missing_required_fields(self):
+        serializer = UserSerializer(data={"first_name": "OnlyFirst"})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("last_name", serializer.errors)
+        self.assertIn("email", serializer.errors)
+        self.assertIn("phone", serializer.errors)

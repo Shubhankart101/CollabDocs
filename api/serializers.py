@@ -65,7 +65,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'owner', 'owner_detail', 'is_active', 'member_count', 'created_at']
         read_only_fields = ['id', 'created_at', 'member_count']
 
-    def get_member_count(self, obj):
+    def get_member_count(self, obj) -> int:
         if hasattr(obj, 'member_count'):
             return obj.member_count
         return obj.members.count()
@@ -131,7 +131,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'updated_at', 'version_count']
 
-    def get_version_count(self, obj):
+    def get_version_count(self, obj) -> int:
         if hasattr(obj, 'version_count'):
             return obj.version_count
         return obj.versions.count()
@@ -160,7 +160,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'document', 'author', 'author_detail', 'content', 'parent', 'reply_count', 'created_at']
         read_only_fields = ['id', 'reply_count', 'created_at']
 
-    def get_reply_count(self, obj):
+    def get_reply_count(self, obj) -> int:
         return obj.replies.count()
 
     def validate(self, attrs):

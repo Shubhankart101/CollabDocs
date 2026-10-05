@@ -147,37 +147,27 @@ docker-compose down -v
 python manage.py test api
 ```
 
+The suite contains **49 automated tests** (expanded from the original 26) across `test_models.py`, `test_serializers.py`, `test_signals.py`, `test_middleware.py`, and `test_views.py`. In addition to the original happy-path cases, it now also covers:
+
+- Duplicate `email` / `phone` rejection on `User` creation (`400`).
+- 404 responses for missing `User`, `Workspace`, and `Document` lookups (detail, versions, stats).
+- `400`/`404` handling when adding workspace members with a missing or non-existent `user` field.
+- Tag attachment via `tag_ids` in addition to `tag_names`, and `400` when neither is supplied.
+- Duplicate `Tag` name rejection.
+- Threaded comment replies created end-to-end via the API, including `reply_count` propagation and rejection of cross-document parent/child comments.
+- `AuditLog` filtering by `date_from` / `date_to` range.
+- Document list pagination response structure (`count`, `results`).
+- Model-level cascade delete of `WorkspaceMember` on `Workspace` deletion, and `SET_NULL` behavior on `Document.created_by` when the referenced `User` is deleted.
+
 #### Example Output
 
 ```text
-Found 26 test(s).
+Found 49 test(s).
 Creating test database for alias 'default'...
 System check identified no issues (0 silenced).
-[GET] /api/users/ - Status: 200 - Time taken: 0.39ms
-...............[GET] /api/audit-logs/ - Status: 200 - Time taken: 32.37ms
-.[POST] /api/comments/ - Status: 201 - Time taken: 5.80ms
-[GET] /api/comments/ - Status: 200 - Time taken: 8.85ms
-.[POST] /api/users/ - Status: 201 - Time taken: 2.51ms
-[GET] /api/users/b42e76a1-69b3-43d8-9999-92a83420d1cd/ - Status: 200 - Time taken: 3.17ms
-.[POST] /api/documents/ - Status: 201 - Time taken: 11.23ms
-[PUT] /api/documents/f5a46e8f-c3ad-4dcf-b205-7403b32e5b3c/ - Status: 200 - Time taken: 11.12ms
-.[GET] /api/documents/ - Status: 200 - Time taken: 9.75ms
-[GET] /api/documents/ - Status: 200 - Time taken: 7.62ms
-[GET] /api/documents/ - Status: 200 - Time taken: 11.50ms
-.[GET] /api/documents/608ba5c2-7899-45fa-99a8-629dec543fd6/versions/ - Status: 200 - Time taken: 11.55ms
-[GET] /api/documents/608ba5c2-7899-45fa-99a8-629dec543fd6/stats/ - Status: 200 - Time taken: 10.94ms
-[POST] /api/documents/608ba5c2-7899-45fa-99a8-629dec543fd6/tags/ - Status: 200 - Time taken: 9.27ms
-.[POST] /api/tags/ - Status: 201 - Time taken: 1.98ms
-.[POST] /api/users/ - Status: 400 - Time taken: 1.94ms
-.[POST] /api/workspaces/ - Status: 201 - Time taken: 4.50ms
-.[GET] /api/workspaces/0f977bcc-7d61-4249-9cb1-f9d53df4230c/ - Status: 200 - Time taken: 5.61ms
-[POST] /api/workspaces/0f977bcc-7d61-4249-9cb1-f9d53df4230c/members/ - Status: 201 - Time taken: 7.79ms
-[POST] /api/workspaces/0f977bcc-7d61-4249-9cb1-f9d53df4230c/members/ - Status: 409 - Time taken: 4.62ms
-[GET] /api/workspaces/0f977bcc-7d61-4249-9cb1-f9d53df4230c/members/ - Status: 200 - Time taken: 6.10ms
-.[GET] /api/workspaces/5ab8ecec-7e66-4241-ba21-255e9991afd0/summary/ - Status: 200 - Time taken: 4.00ms
-.
+.................................................
 ----------------------------------------------------------------------
-Ran 26 tests in 0.409s
+Ran 49 tests in 0.251s
 
 OK
 Destroying test database for alias 'default'...
@@ -227,7 +217,7 @@ docker-compose up --build -d
 
 ## 🧪 Testing
 
-To run the complete automated test suite (26 tests covering models, views, serializers, middleware, and signals):
+To run the complete automated test suite (49 tests covering models, views, serializers, middleware, and signals, including negative/edge-case scenarios):
 
 ```bash
 python manage.py test api
@@ -236,34 +226,12 @@ python manage.py test api
 ### Example Local Test Run Output
 
 ```text
-Found 26 test(s).
+Found 49 test(s).
 Creating test database for alias 'default'...
 System check identified no issues (0 silenced).
-[GET] /api/users/ - Status: 200 - Time taken: 0.39ms
-...............[GET] /api/audit-logs/ - Status: 200 - Time taken: 32.37ms
-.[POST] /api/comments/ - Status: 201 - Time taken: 5.80ms
-[GET] /api/comments/ - Status: 200 - Time taken: 8.85ms
-.[POST] /api/users/ - Status: 201 - Time taken: 2.51ms
-[GET] /api/users/b42e76a1-69b3-43d8-9999-92a83420d1cd/ - Status: 200 - Time taken: 3.17ms
-.[POST] /api/documents/ - Status: 201 - Time taken: 11.23ms
-[PUT] /api/documents/f5a46e8f-c3ad-4dcf-b205-7403b32e5b3c/ - Status: 200 - Time taken: 11.12ms
-.[GET] /api/documents/ - Status: 200 - Time taken: 9.75ms
-[GET] /api/documents/ - Status: 200 - Time taken: 7.62ms
-[GET] /api/documents/ - Status: 200 - Time taken: 11.50ms
-.[GET] /api/documents/608ba5c2-7899-45fa-99a8-629dec543fd6/versions/ - Status: 200 - Time taken: 11.55ms
-[GET] /api/documents/608ba5c2-7899-45fa-99a8-629dec543fd6/stats/ - Status: 200 - Time taken: 10.94ms
-[POST] /api/documents/608ba5c2-7899-45fa-99a8-629dec543fd6/tags/ - Status: 200 - Time taken: 9.27ms
-.[POST] /api/tags/ - Status: 201 - Time taken: 1.98ms
-.[POST] /api/users/ - Status: 400 - Time taken: 1.94ms
-.[POST] /api/workspaces/ - Status: 201 - Time taken: 4.50ms
-.[GET] /api/workspaces/0f977bcc-7d61-4249-9cb1-f9d53df4230c/ - Status: 200 - Time taken: 5.61ms
-[POST] /api/workspaces/0f977bcc-7d61-4249-9cb1-f9d53df4230c/members/ - Status: 201 - Time taken: 7.79ms
-[POST] /api/workspaces/0f977bcc-7d61-4249-9cb1-f9d53df4230c/members/ - Status: 409 - Time taken: 4.62ms
-[GET] /api/workspaces/0f977bcc-7d61-4249-9cb1-f9d53df4230c/members/ - Status: 200 - Time taken: 6.10ms
-.[GET] /api/workspaces/5ab8ecec-7e66-4241-ba21-255e9991afd0/summary/ - Status: 200 - Time taken: 4.00ms
-.
+.................................................
 ----------------------------------------------------------------------
-Ran 26 tests in 0.409s
+Ran 49 tests in 0.251s
 
 OK
 Destroying test database for alias 'default'...
@@ -275,6 +243,18 @@ To run with code coverage:
 coverage run manage.py test api
 coverage report -m
 ```
+
+---
+
+## 🖥️ Swagger UI & ReDoc Verification
+
+Both interactive documentation UIs were manually verified against a live local server:
+
+1. Started the dev server with `python manage.py runserver 127.0.0.1:8000`.
+2. Opened `http://127.0.0.1:8000/api/schema/swagger-ui/` and confirmed all endpoint groups (`audit-logs`, `comments`, `documents`, `tags`, `users`, `workspaces`) render correctly — see [screenshots/swagger-ui-overview.png](screenshots/swagger-ui-overview.png).
+3. Expanded `POST /api/documents/` to confirm the request/response schema renders as expected — see [screenshots/swagger-ui-create-document.png](screenshots/swagger-ui-create-document.png).
+4. Used **Try it out** on `POST /api/users/` to execute a real request against the running server and received a genuine `201 Created` response — see [screenshots/swagger-ui-live-request-response.png](screenshots/swagger-ui-live-request-response.png).
+5. Opened `http://127.0.0.1:8000/api/schema/redoc/` and confirmed the ReDoc alternative view renders the same schema — see [screenshots/redoc-ui-overview.png](screenshots/redoc-ui-overview.png).
 
 ---
 
