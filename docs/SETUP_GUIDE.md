@@ -292,3 +292,5 @@ The full breakdown of each scenario — atomic rollback, middleware logging, bot
 1. Open Postman.
 2. Click **Import** and select `CollabDocs.postman_collection.json` located at the root of the repository.
 3. Use the pre-configured collection variables (`baseUrl`, `userId`, `workspaceId`, `documentId`) to execute requests across all 17 API endpoints.
+
+For the complete setup procedure (including a `newman` CLI alternative for headless/automated runs) and live verification screenshots of the atomic rollback, middleware logging, aggregation endpoints, and the AuditLog signal — all reproduced through Postman — see **[docs/TESTING.md](TESTING.md#6-live-api-verification-via-postman)**.
