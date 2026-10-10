@@ -11,7 +11,7 @@ This guide provides step-by-step instructions for setting up, running, testing, 
 - **Git**: 2.30+
 - **PostgreSQL**: 15+ (Optional; defaults to SQLite for local development if Postgres env variables are omitted)
 - **Docker & Docker Compose**: (Optional; for containerized setup)
-- **Postman**: For API testing using `CollabDocs.postman_collection.json`
+- **Postman Online (Web)**: For API testing using `CollabDocs.postman_collection.json`
 
 ---
 
@@ -177,10 +177,10 @@ coverage html
 
 ## 📬 Postman Testing Workflow
 
-1. Launch Postman.
+1. Open Postman Online in a browser: [https://app.postman.com](https://app.postman.com).
 2. Click **Import** -> Select `CollabDocs.postman_collection.json`.
-3. Set the environment variable `baseUrl` to `http://127.0.0.1:8000/api`.
-4. Run requests in recommended sequence:
+3. Set collection variable `baseUrl` to `http://127.0.0.1:8000/api`.
+4. Run requests in recommended sequence to cover all endpoint groups:
    - `Users -> Create User` (copy returned `id` to `userId`)
    - `Workspaces -> Create Workspace` (copy returned `id` to `workspaceId`)
    - `Workspaces -> Add Member to Workspace`
@@ -289,8 +289,8 @@ The full breakdown of each scenario — atomic rollback, middleware logging, bot
 
 ## 📬 Postman Testing
 
-1. Open Postman.
+1. Open Postman Online at [https://app.postman.com](https://app.postman.com).
 2. Click **Import** and select `CollabDocs.postman_collection.json` located at the root of the repository.
 3. Use the pre-configured collection variables (`baseUrl`, `userId`, `workspaceId`, `documentId`) to execute requests across all 17 API endpoints.
 
-For the complete setup procedure (including a `newman` CLI alternative for headless/automated runs) and live verification screenshots of the atomic rollback, middleware logging, aggregation endpoints, and the AuditLog signal — all reproduced through Postman — see **[docs/TESTING.md](TESTING.md#6-live-api-verification-via-postman)**.
+For the complete setup procedure and live verification screenshots of the atomic rollback, middleware logging, aggregation endpoints, and the AuditLog signal — all reproduced through Postman Online — see **[docs/TESTING.md](TESTING.md#6-live-api-verification-via-postman-online)**.

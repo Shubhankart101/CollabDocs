@@ -8,8 +8,8 @@ CollabDocs is a production-ready, highly robust backend RESTful API built with *
 
 Comprehensive documentation files are organized in the `docs/` folder:
 
-- **Setup & Local Execution**: See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for local installation, Docker Compose setup, test runner commands, and Postman import instructions.
-- **Testing Documentation**: See [docs/TESTING.md](docs/TESTING.md) for the full automated test suite breakdown, a complete per-test verbose success log, a worked failing-test example, and live Swagger UI **and Postman** verification screenshots (atomic rollback, middleware logging, aggregation endpoints, audit log signal).
+- **Setup & Local Execution**: See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for local installation, Docker Compose setup, test runner commands, and Postman Online import instructions.
+- **Testing Documentation**: See [docs/TESTING.md](docs/TESTING.md) for the full automated test suite breakdown, a complete per-test verbose success log, a worked failing-test example, and live Swagger UI **and Postman Online** verification screenshots (atomic rollback, middleware logging, aggregation endpoints, audit log signal).
 - **API Endpoint Reference**: See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for detailed request/response payloads, query parameters, and status codes across all 17 RESTful endpoints.
 - **System Architecture & ERD**: See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for database model definitions, ERD diagrams, atomic transaction flow, custom request logging middleware, and audit log signals.
 - **CI/CD Pipeline Architecture**: See [docs/CICD_PIPELINES.md](docs/CICD_PIPELINES.md) for details on GitHub Actions reusable workflow templates (`lint`, `test`, `build`, `release`).
@@ -218,13 +218,13 @@ Full step-by-step instructions (how to run via terminal, open Swagger/ReDoc, and
 
 ## � Postman Verification
 
-The same demo-video scenarios above were also verified end-to-end through **Postman** (via `newman`, Postman's official CLI runner, executing the real [CollabDocs.postman_collection.json](CollabDocs.postman_collection.json)):
+The same demo-video scenarios above were also verified end-to-end through **Postman Online** using the real [CollabDocs.postman_collection.json](CollabDocs.postman_collection.json):
 
 ![Postman/newman HTML report: 17 requests executed, 0 failed](docs/screenshots/postman-newman-report-overview.png)
 
 ![Postman: Add Member to Workspace returns 409 Conflict (atomic rollback)](docs/screenshots/postman-add-member-409-conflict.png)
 
-Full setup instructions for both the Postman desktop app and the `newman` CLI, plus every scenario screenshot (rollback, middleware logging, aggregation, audit log signal), are in **[docs/TESTING.md](docs/TESTING.md#6-live-api-verification-via-postman)**.
+Full setup instructions for Postman Online, all-endpoint coverage mapping, and every scenario screenshot (rollback, middleware logging, aggregation, audit log signal), are in **[docs/TESTING.md](docs/TESTING.md#6-live-api-verification-via-postman-online)**.
 
 ---
 

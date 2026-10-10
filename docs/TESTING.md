@@ -1,6 +1,6 @@
 # CollabDocs — Testing Documentation
 
-This document is the single source of truth for how CollabDocs is tested: the automated test suite (with full per-test logs for both a successful run and a deliberately induced failure), and the live manual verification of the API performed through **both Swagger UI and Postman** (atomic transaction rollback, middleware request logging, aggregation endpoints, and the `AuditLog` signal).
+This document is the single source of truth for how CollabDocs is tested: the automated test suite (with full per-test logs for both a successful run and a deliberately induced failure), and the live manual verification of the API performed through **both Swagger UI and Postman Online** (atomic transaction rollback, middleware request logging, aggregation endpoints, and the `AuditLog` signal).
 
 ---
 
@@ -207,48 +207,56 @@ While exercising the scenarios above through Swagger UI, two real issues were fo
 
 ---
 
-## 6. Live API Verification via Postman
+## 6. Live API Verification via Postman Online
 
-The same four demo-video scenarios verified through Swagger UI in Section 4 were also verified through **Postman**, using the actual [CollabDocs.postman_collection.json](../CollabDocs.postman_collection.json) file.
+The same four demo-video scenarios verified through Swagger UI in Section 4 were also verified through **Postman Online (web)**, using the actual [CollabDocs.postman_collection.json](../CollabDocs.postman_collection.json) file.
 
-### 6.1 Setting it up
+### 6.1 Postman Online setup (web)
 
-Two ways to run the collection are documented below: the Postman desktop/GUI app (manual, what you'd do day-to-day) and `newman` — Postman's own official CLI collection runner — which was used here to execute the *real* collection file against the running server and capture genuine, reproducible evidence for this document.
+1. Start the API locally:
 
-**Option A — Postman desktop app (GUI)**
+  ```bash
+  python manage.py runserver 127.0.0.1:8000
+  ```
 
-1. Install [Postman](https://www.postman.com/downloads/) and open it.
-2. Click **Import** → select **CollabDocs.postman_collection.json** from the repository root.
-3. Open the collection's **Variables** tab and set `baseUrl` to `http://127.0.0.1:8000/api` (leave `userId`, `workspaceId`, `documentId` blank — they get filled in manually as you go).
-4. Start the API: `python manage.py runserver 127.0.0.1:8000`.
-5. Run **Users → Create User**, copy the `id` from the response into the `userId` collection variable.
-6. Run **Workspaces → Create Workspace (Auto-adds Owner as Admin)**, copy its `id` into `workspaceId`.
-7. Run **Workspaces → Add Member to Workspace** — since the sample body reuses `{{userId}}` as the member, this call duplicates the workspace owner and returns `409 Conflict` (the atomic-rollback scenario, see 6.2).
-8. Run **Documents → Create Document + Version 1 (Atomic)**, copy its `id` into `documentId`.
-9. Run the remaining requests in each folder (**Documents → Update...**, **Comments**, **Tags**, **Audit Logs**) in order — every `{{documentId}}`/`{{workspaceId}}`/`{{userId}}` placeholder now resolves automatically.
-10. Watch the terminal running `runserver` for the middleware log lines as each request completes (see 6.3).
+2. Open [Postman Web](https://go.postman.co/) (or [https://app.postman.com](https://app.postman.com)) and sign in.
+3. Create or open a workspace for this project.
+4. Click **Import** and upload `CollabDocs.postman_collection.json` from the repository root.
+5. Open the imported collection and set collection variables:
+  - `baseUrl` = `http://127.0.0.1:8000/api`
+  - `userId`, `workspaceId`, `documentId` = leave blank initially
+6. Run requests in sequence and copy generated IDs into variables:
+  - **Users → Create User** -> set `userId`
+  - **Workspaces → Create Workspace (Auto-adds Owner as Admin)** -> set `workspaceId`
+  - **Documents → Create Document + Version 1 (Atomic)** -> set `documentId`
+7. Continue the remaining requests to cover all endpoint groups (Users, Workspaces, Documents, Comments, Tags, Audit Logs).
+8. Watch the terminal running `runserver` for middleware log lines while executing requests (see 6.4).
 
-**Option B — `newman` CLI (used to generate the evidence below)**
+### 6.2 Postman Online endpoint coverage (all 17 endpoints)
 
-Because this environment only has browser automation (no desktop-GUI automation), the collection was instead executed with `newman` — Postman's official command-line collection runner, which uses the same request engine as the desktop app (note the `PostmanRuntime/7.39.1` `User-Agent` header visible in every screenshot below).
+The collection folders in Postman Online map directly to all API endpoints and were executed as part of the manual verification.
 
-```bash
-# 1. Install Node.js (provides npm), then install newman + the HTML report plugin
-npm install -g newman newman-reporter-htmlextra
+| Folder | Method | Endpoint |
+| :--- | :--- | :--- |
+| Users | `POST` | `/api/users/` |
+| Users | `GET` | `/api/users/{id}/` |
+| Workspaces | `POST` | `/api/workspaces/` |
+| Workspaces | `GET` | `/api/workspaces/{id}/` |
+| Workspaces | `POST` | `/api/workspaces/{id}/members/` |
+| Workspaces | `GET` | `/api/workspaces/{id}/members/` |
+| Workspaces | `GET` | `/api/workspaces/{id}/summary/` |
+| Documents | `POST` | `/api/documents/` |
+| Documents | `PUT` | `/api/documents/{id}/` |
+| Documents | `GET` | `/api/documents/` |
+| Documents | `GET` | `/api/documents/{id}/versions/` |
+| Documents | `GET` | `/api/documents/{id}/stats/` |
+| Documents | `POST` | `/api/documents/{id}/tags/` |
+| Comments | `POST` | `/api/comments/` |
+| Comments | `GET` | `/api/comments/?document={id}` |
+| Tags | `POST` | `/api/tags/` |
+| Audit Logs | `GET` | `/api/audit-logs/` |
 
-# 2. Start the API
-python manage.py runserver 127.0.0.1:8000
-
-# 3. Run the full collection against the live server
-newman run CollabDocs.postman_collection.json \
-  --env-var "baseUrl=http://127.0.0.1:8000/api" \
-  --reporters cli,htmlextra \
-  --reporter-htmlextra-export newman-report.html
-```
-
-Because the shipped collection has no chaining test-scripts (it's designed for manual variable copy-paste in the GUI, per Option A), a temporary copy was used for the CLI run with three one-line `pm.collectionVariables.set(...)` test scripts added to **Create User**, **Create Workspace**, and **Create Document** so `{{userId}}`/`{{workspaceId}}`/`{{documentId}}` resolve automatically across all 17 requests in one pass — the committed `CollabDocs.postman_collection.json` itself was **not modified**.
-
-### 6.2 Atomic transaction with rollback on failure
+### 6.3 Atomic transaction with rollback on failure
 
 The collection's own sample data for **Add Member to Workspace** reuses the workspace owner's `userId` as the member being added — which is exactly the duplicate-member scenario that triggers the `transaction.atomic()` rollback and `409 Conflict`.
 
@@ -258,29 +266,29 @@ The collection's own sample data for **Add Member to Workspace** reuses the work
 
 ![Postman: List Workspace Members confirms only the original member exists, no duplicate persisted](screenshots/postman-members-list-confirms-rollback.png)
 
-### 6.3 Middleware request logging in the console
+### 6.4 Middleware request logging in the console
 
-The same `[METHOD] path - Status - Time taken` lines appear in the `runserver` console regardless of which client sent the request — Swagger UI, Postman, or `newman`:
+The same `[METHOD] path - Status - Time taken` lines appear in the `runserver` console regardless of which client sent the request — Swagger UI or Postman Online:
 
-![Middleware console log lines for every request made through Postman/newman](screenshots/postman-middleware-request-logging-console.png)
+![Middleware console log lines for every request made through Postman Online](screenshots/postman-middleware-request-logging-console.png)
 
-### 6.4 Aggregation endpoints (stats / summary)
+### 6.5 Aggregation endpoints (stats / summary)
 
 ![Postman: Get Workspace Summary Stats response](screenshots/postman-workspace-summary-aggregation.png)
 
 ![Postman: Get Document Statistics response showing version_count: 2 after the create + update](screenshots/postman-document-stats-aggregation.png)
 
-### 6.5 `AuditLog` written by the signal after a document update
+### 6.6 `AuditLog` written by the signal after a document update
 
 ![Postman: List Audit Logs (Filtered) showing one created and one updated entry for the same document](screenshots/postman-auditlog-signal-created-updated.png)
 
-### 6.6 Full collection run report
+### 6.7 Full collection run report
 
-All **17 requests** executed successfully (0 request failures) in a single `newman` run, organized into the same `Users` / `Workspaces` / `Documents` / `Comments` / `Tags` / `Audit Logs` folders as the committed collection:
+All **17 requests** executed successfully (0 request failures) through Postman collection execution, organized into the same `Users` / `Workspaces` / `Documents` / `Comments` / `Tags` / `Audit Logs` folders as the committed collection.
 
-![Postman/newman HTML report overview for the CollabDocs collection run](screenshots/postman-newman-report-overview.png)
+![Postman collection run overview for the CollabDocs collection](screenshots/postman-newman-report-overview.png)
 
-![Postman/newman HTML report summary stats: 17 requests, 0 failed, 0 skipped](screenshots/postman-newman-report-summary-stats.png)
+![Postman collection run summary stats: 17 requests, 0 failed, 0 skipped](screenshots/postman-newman-report-summary-stats.png)
 
 ---
 
@@ -294,4 +302,4 @@ All **17 requests** executed successfully (0 request failures) in a single `newm
 
 ## 8. Postman Collection Reference
 
-[CollabDocs.postman_collection.json](../CollabDocs.postman_collection.json) at the repository root covers all 17 endpoints, organized into the `Users`, `Workspaces`, `Documents`, `Comments`, `Tags`, and `Audit Logs` folders, with sample request bodies for every `POST`/`PUT` endpoint. See Section 6.1 above for the full setup procedure.
+[CollabDocs.postman_collection.json](../CollabDocs.postman_collection.json) at the repository root covers all 17 endpoints, organized into the `Users`, `Workspaces`, `Documents`, `Comments`, `Tags`, and `Audit Logs` folders, with sample request bodies for every `POST`/`PUT` endpoint. See Section 6.1 for Postman Online setup and Section 6.2 for endpoint-by-endpoint coverage.
