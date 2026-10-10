@@ -174,6 +174,25 @@ Beyond the automated suite, the running API was exercised live through Swagger U
 
 `collabdocs/middleware.py`'s `RequestLoggingMiddleware` prints `[METHOD] path - Status: <code> - Time taken: <ms>ms` to the console for every request. This is captured directly from the `runserver` console while the Swagger UI requests above were executed:
 
+To see this exact view yourself, keep the API server console open while making requests:
+
+1. Open a terminal in the project root (`CollabDocs/`).
+2. Start the Django server in that terminal:
+
+  ```bash
+  python manage.py runserver 127.0.0.1:8000
+  ```
+
+3. Do **not** close that terminal; this is the console where middleware lines are printed.
+4. Open Swagger UI in a browser (`http://127.0.0.1:8000/api/schema/swagger-ui/`) and run requests with **Try it out**.
+5. Return to the same server terminal to see each `[METHOD] path - Status - Time taken` log entry appear in real time.
+
+If running with Docker Compose instead of local `runserver`, view the same middleware logs in:
+
+```bash
+docker-compose logs -f web
+```
+
 ![Middleware console log lines for every request made through Swagger UI](screenshots/middleware-request-logging-console.png)
 
 ### 4.4 Aggregation endpoints (stats / summary)
